@@ -1,0 +1,23 @@
+{
+  "name": "require-bean",
+  "version": "0.0.1",
+  "description": "Minimal IoC container",
+  "main": "./lib/main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "keywords": [
+    "ioc",
+    "dependency",
+    "injection"
+  ],
+  "author": "Jeff Sanches",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "~1.17.0"
+  },
+  "repository": "https://github.com/jsanchesleao/require-bean.git"
+}
