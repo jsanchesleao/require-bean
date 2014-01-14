@@ -13,6 +13,14 @@ var mybean = function(){
 }
 ```
 
+Installation
+------------
+
+```bash
+npm install require-bean
+```
+
+
 QuickStart
 ----------
 
