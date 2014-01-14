@@ -4,7 +4,7 @@
 var inspector = require('../lib/inspector')
 var assert = require('assert')
 
-describe('The inspector', function(){
+describe('The Inspector', function(){
     describe('#extractParameters()', function(){
         it('returns an array of parameter names for a given function', function(){
             var f = function(foo, bar){}
