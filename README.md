@@ -10,7 +10,8 @@ var mybean = function(){
         value: 'something'
         //anything here
     }
-}```
+}
+```
 
 QuickStart
 ----------
