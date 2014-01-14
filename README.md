@@ -52,15 +52,29 @@ var app = container.require_bean('greeter');
 app()
 ```
 
+Dependency Management
+---------------------
+
+Since the beans are functions that returns values, the dependencies are managed as these functions' arguments.
+***require-bean*** will look in the named parameters for dependencies, so if you have a bean named _awesomebean_ and need it as a dependency, you could write this:
+
+```javascript
+container.register('mybean', function(awesomebean){ /* cool stuff here */ })
+```
+
+There is no restriction for the name of the beans you want to register, but they will be useless if you cannot define a function argument with the same name.
+
 Bean Scope
 ----------
 
 When you register a bean, you can choose one of these methods:
 
-*container.register()
+* container.register()
+
 This method registers the bean as a singleton, meaning that every time you request it, the same instance will be returned to you
 
-*container.register_proto()
+* container.register_proto()
+
 Registers the bean as a template for creating beans, meaning that each time you request it, a different instance will be returned
 
 
