@@ -28,8 +28,11 @@ QuickStart
 Follow the commented example:
 
 ```javascript
-/*Instantiate the container*/
-var container = require('require-bean');
+/*
+    Instantiate the container
+    This line creates a container named 'myapp', to hold beans related to 'myapp' application
+*/
+var container = require('require-bean').container('myapp');
 
 /*Define a bean that takes no dependency*/
 var logger = function(){
@@ -83,6 +86,8 @@ When you register a bean, you can choose one of these methods:
 
 This method registers the bean as a singleton, meaning that every time you request it, the same instance will be returned to you
 
+Notice that the singletons' scope is the enclosing container. Different container instances will have different singleton instances.
+
 * container.register_proto( bean_name, bean_function )
 
 Registers the bean as a template for creating beans, meaning that each time you request it, a different instance will be returned
@@ -92,3 +97,20 @@ Circular Dependencies
 ---------------------
 
 Since all dependencies are injected during creation of beans, not by setting properties, there is no support for circular dependencies in require-bean just yet.
+
+
+Multiple Containers
+-------------------
+
+```javascript
+var requireBean = require('require-bean');
+
+/*Creates a container named 'myapp'*/
+var myappContainer = requireBean.container('myapp');
+
+/*Creates a container named 'otherapp'*/
+var otherAppContainer = requireBean.container('otherapp');
+```
+
+requireBean.container() method is called to create containers. Beans that are registered in one container will NOT be available in the other container instances.
+If your app starts other apps, you should consider create separated container instances for each app.

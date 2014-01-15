@@ -2,7 +2,7 @@
  * Created by jeferson on 1/13/14.
  */
 var assert = require('assert')
-var container = require('../lib/main')
+var container = require('../lib/main').container('test');
 
 var abean = function(){
     return {value: "BEAN"}
