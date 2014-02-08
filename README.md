@@ -63,6 +63,13 @@ var app = container.require_bean('greeter');
 app() //This instance will run with the 'logger' dependency properly wired
 ```
 
+There is also a helper method to register other modules into the container:
+
+```javascript
+   container.register_module('fs');
+```
+This will register the module with the same name into the container as a dependency for other beans.
+
 Dependency Management
 ---------------------
 
