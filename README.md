@@ -86,7 +86,7 @@ var bean = {
    dependencies: ['aDependency', 'otherDependency'],
    scope: container.SINGLETON,
    factory: function(a, b){
-      return "awesomeness bean using " + a + " and " + b;
+      return "awesomeness using beans " + a + " and " + b;
    }
 }
 ```
@@ -99,15 +99,15 @@ Required. This will be the name to be saved in the registry.
 
 - dependencies
 
-Optional. An array containing the names of the dependencies to be passed to factory. If instead you pass the constant container.RESOLVE, the container will infer from the names of the factory arguments.<br>
-Default: container.RESOLVE
+Optional. An array containing the names of the dependencies to be passed to factory. If instead you pass the constant <code>container.RESOLVE</code>, the container will infer from the names of the factory arguments.<br>
+Default: <code>container.RESOLVE</code>
 
 - scope
 
-Optional. You can pass container.SINGLETON or container.PROTOTYPE, so that your bean will be placed correctly in the registry.<br>
-Default: container.SINGLETON
+Optional. You can pass <code>container.SINGLETON</code> or <code>container.PROTOTYPE</code>, so that your bean will be placed correctly in the registry.<br>
+Default: <code>container.SINGLETON</code>
 
--factory
+- factory
 
 Required. The function that will return your bean. It will take the dependencies as arguments, and they will be resolved based on the dependencies parameter defined earlier.
 
