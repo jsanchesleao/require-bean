@@ -39,7 +39,7 @@ describe('The Inspector', function(){
                 inspector.extractParameters(not_a_function)
                 throw 'error'
             }catch(e){
-                assert.equal('argument passed is not a function', e)
+                assert.equal('argument passed is not a function', e.message)
             }
         })
     })

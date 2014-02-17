@@ -75,6 +75,42 @@ If the module's name contains hyphens or dots, it will be converted to a camelCa
    container.register_module('token-manager'); //this will register a bean named tokenManager to hold the module.
 ```
 
+Bean Notation
+-------------
+
+Alternatively you can use bean notation to register your beans. For that you should use the method <code>container.bean()</code> like the following:
+
+```javascript
+var bean = {
+   name: 'myBean',
+   dependencies: ['aDependency', 'otherDependency'],
+   scope: container.SINGLETON,
+   factory: function(a, b){
+      return "awesomeness bean using " + a + " and " + b;
+   }
+}
+```
+
+This strict way to define a bean will accept an object with four fields:
+
+- name
+
+Required. This will be the name to be saved in the registry.
+
+- dependencies
+
+Optional. An array containing the names of the dependencies to be passed to factory. If instead you pass the constant container.RESOLVE, the container will infer from the names of the factory arguments.<br>
+Default: container.RESOLVE
+
+- scope
+
+Optional. You can pass container.SINGLETON or container.PROTOTYPE, so that your bean will be placed correctly in the registry.<br>
+Default: container.SINGLETON
+
+-factory
+
+Required. The function that will return your bean. It will take the dependencies as arguments, and they will be resolved based on the dependencies parameter defined earlier.
+
 Dependency Management
 ---------------------
 
