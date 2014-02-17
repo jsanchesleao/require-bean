@@ -69,6 +69,11 @@ There is also a helper method to register other modules into the container:
    container.register_module('fs');
 ```
 This will register the module with the same name into the container as a dependency for other beans.
+If the module's name contains hyphens or dots, it will be converted to a camelCase name:
+
+```javascript
+   container.register_module('token-manager'); //this will register a bean named tokenManager to hold the module.
+```
 
 Dependency Management
 ---------------------
