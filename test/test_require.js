@@ -1,8 +1,5 @@
-/**
- * Created by jeferson on 1/13/14.
- */
 var assert = require('assert')
-var container = require('../lib/main').container('test');
+var app = require('../lib/main').container('test');
 
 var abean = function(){
     return {value: "BEAN"}
@@ -28,64 +25,92 @@ var formatBean = {
     dependencies: ['otherBean']
 }
 
-container.register('abean', abean );
-container.register('otherBean', otherBean );
-container.register('abean_dependent', abean_dependent );
-container.register('unresolved', unresolved);
-container.register_proto('proto', proto);
+var asyncBean = {
+    name: 'asyncBean',
+    dependencies: ['$return'],
+    factory: function($return){
+        setTimeout(function(){
+            $return({value: 'async'});
+        }, 10)
+    }
+}
 
-container.bean(formatBean);
+app.register('abean', abean );
+app.register('otherBean', otherBean );
+app.register('abean_dependent', abean_dependent );
+app.register('unresolved', unresolved);
+app.register_proto('proto', proto);
+
+app.bean(formatBean);
+app.bean(asyncBean);
 
 
 describe('The Container', function(){
     describe('#require_bean()', function(){
-        it('returns a bean that has been registered', function(){
-            var abean = container.require_bean('abean');
-            assert.equal( 'BEAN', abean.value)
+        it('returns a bean that has been registered', function(done){
+            app.run('abean', function(err, abean){
+                assert.equal( abean.value, 'BEAN');
+                done();
+            });
         });
 
-        it('returns a wired bean', function(){
-            var dependent = container.require_bean('abean_dependent');
-            assert.equal('BEAN', dependent.value)
+        it('returns a wired bean', function(done){
+            app.run('abean_dependent', function(err, dependent){
+                assert.equal(dependent.value, 'BEAN');
+                done();
+            });
         });
 
-        it('returns a bean registered in bean notation', function(){
-            var formatBean = container.require_bean('formatBean');
-            assert.equal('OTHERBEAN', formatBean.value);
-        })
+        it('returns a bean registered in bean notation', function(done){
+            app.run('formatBean', function(err, formatBean){
+                assert.equal(formatBean.value, 'OTHERBEAN');
+                done();
+            });
+        });
 
-        it('fails if required bean cannot be resolved', function(){
+        it('returns a bean registered in asynchronous bean notation', function(done){
+            app.run('asyncBean', function(err, asyncBean){
+                assert.equal(asyncBean.value, 'async');
+                done();
+            });
+        });
+
+        it('fails if required bean cannot be resolved', function(done){
+            var unresolved = app.run('unresolved', function(err, unresolved){
+                if(!err){
+                    assert.fail();
+                }
+                assert.equal(err.message, 'Cannot wire bean [unresolved]. Unresolved dependency: [somebean]');
+                done();
+            });
+        });
+
+        it('returns singleton instances of beans', function(done){
+            app.run('abean', function(err, first){
+                app.run('abean', function(err, last){
+                    assert.equal( first, last );
+                    done();
+                })
+            });
+        });
+
+        it('returns error if try to duplicate a bean name', function(){
             try{
-                var unresolved = container.require_bean('unresolved');
-                throw Error('fail');
-            }
-            catch(e){
-                assert.equal('Cannot wire bean [unresolved]. Unresolved dependency: [somebean]', e.message)
-            }
-        });
-
-        it('returns singleton instances of beans', function(){
-            var first = container.require_bean('abean');
-            var last = container.require_bean('abean');
-            assert.equal( first, last );
-        });
-
-        it('throws error if try to duplicate a bean name', function(){
-            try{
-                container.register('abean', function(){});
+                app.register('abean', function(){});
                 assert.fail();
             }
             catch(e){
-                assert.equal('Bean [abean] is already registered', e.message)
+                assert.equal(e.message, 'Bean [abean] is already registered')
             }
         });
 
-        it('returns different instances of prototype beans', function(){
-            var first = container.require_bean('proto');
-            var last  = container.require_bean('proto');
-            assert.notEqual(first, last);
+        it('returns different instances of prototype beans', function(done){
+            app.run('proto', function(err, first){
+                app.run('proto', function(err, last){
+                    assert.notEqual(first, last);
+                    done();
+                });
+            });
         });
-
-
     })
 })

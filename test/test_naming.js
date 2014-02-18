@@ -1,6 +1,3 @@
-/**
- * Created by jeferson on 2/16/14.
- */
 var naming = require('../lib/namingConverter');
 var assert = require('assert');
 

@@ -1,6 +1,3 @@
-/**
- * Created by jeferson on 1/13/14.
- */
 var inspector = require('../lib/inspector')
 var assert = require('assert')
 
