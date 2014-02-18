@@ -116,6 +116,22 @@ Default: <code>app.SINGLETON</code>
 
 Required. The function that will return your bean. It will take the dependencies as arguments, and they will be resolved based on the dependencies parameter defined earlier.
 
+
+Asynchronous Beans
+------------------
+
+If your bean creation should be asynchronous, like registering a running http server, you need to wire the special dependency $return, provided by default:
+
+```javascript
+    app.register('server', function(http, $return){ //
+        var server = http.createServer();
+        server.listen(8000, function(){
+            $return(server);  // registers the server asynchronously;
+        });
+    });
+```
+
+
 Dependency Management
 ---------------------
 

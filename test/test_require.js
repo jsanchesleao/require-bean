@@ -47,6 +47,16 @@ app.bean(asyncBean);
 
 describe('The Container', function(){
     describe('#require_bean()', function(){
+        it('cannot register a bean with name beginning with $', function(){
+            try{
+                app.register('$something', function(){});
+                assert.fail();
+            }
+            catch(err){
+                assert.equal(err.message, 'Error registering bean [$something]: Beans with names beginning with $ are reserved and cannot be created by clients');
+            }
+        });
+
         it('returns a bean that has been registered', function(done){
             app.run('abean', function(abean){
                 assert.equal( abean.value, 'BEAN');
