@@ -48,46 +48,54 @@ app.bean(asyncBean);
 describe('The Container', function(){
     describe('#require_bean()', function(){
         it('returns a bean that has been registered', function(done){
-            app.run('abean', function(err, abean){
+            app.run('abean', function(abean){
+                assert.equal( abean.value, 'BEAN');
+                done();
+            });
+        });
+
+        it('returns a bean that has been registered using short notation', function(done){
+            app.run(function(abean){
                 assert.equal( abean.value, 'BEAN');
                 done();
             });
         });
 
         it('returns a wired bean', function(done){
-            app.run('abean_dependent', function(err, dependent){
+            app.run('abean_dependent', function(dependent){
                 assert.equal(dependent.value, 'BEAN');
                 done();
             });
         });
 
         it('returns a bean registered in bean notation', function(done){
-            app.run('formatBean', function(err, formatBean){
+            app.run('formatBean', function(formatBean){
                 assert.equal(formatBean.value, 'OTHERBEAN');
                 done();
             });
         });
 
         it('returns a bean registered in asynchronous bean notation', function(done){
-            app.run('asyncBean', function(err, asyncBean){
+            app.run('asyncBean', function(asyncBean){
                 assert.equal(asyncBean.value, 'async');
                 done();
             });
         });
 
-        it('fails if required bean cannot be resolved', function(done){
-            var unresolved = app.run('unresolved', function(err, unresolved){
-                if(!err){
+        it('fails if required bean cannot be resolved', function(){
+            try{
+                var unresolved = app.run('unresolved', function(unresolved){
                     assert.fail();
-                }
+                });
+            }
+            catch(err){
                 assert.equal(err.message, 'Cannot wire bean [unresolved]. Unresolved dependency: [somebean]');
-                done();
-            });
+            }
         });
 
         it('returns singleton instances of beans', function(done){
-            app.run('abean', function(err, first){
-                app.run('abean', function(err, last){
+            app.run('abean', function(first){
+                app.run('abean', function(last){
                     assert.equal( first, last );
                     done();
                 })
@@ -105,8 +113,8 @@ describe('The Container', function(){
         });
 
         it('returns different instances of prototype beans', function(done){
-            app.run('proto', function(err, first){
-                app.run('proto', function(err, last){
+            app.run('proto', function(first){
+                app.run('proto', function(last){
                     assert.notEqual(first, last);
                     done();
                 });
