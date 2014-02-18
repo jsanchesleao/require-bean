@@ -32,7 +32,7 @@ Follow the commented example:
     Instantiate the container
     This line creates a container named 'myapp', to hold beans related to 'myapp' application
 */
-var container = require('require-bean').container('myapp');
+var app = require('require-bean').container('myapp');
 
 /*Define a bean that takes no dependency*/
 var logger = function(){
@@ -54,42 +54,47 @@ var greeter = function(logger){
 }
 
 /*Register the beans*/
-container.register('logger', logger);
-container.register('greeter', greeter);
+app.register('logger', logger);
+app.register('greeter', greeter);
 
 /*Require a wired bean from the container*/
-var app = container.require_bean('greeter');
-
-app() //This instance will run with the 'logger' dependency properly wired
+app.run(function(greeter){
+    greeter(); //This instance will run with the 'logger' dependency properly wired
+});
 ```
 
 There is also a helper method to register other modules into the container:
 
 ```javascript
-   container.register_module('fs');
+   app.register_module('fs');
 ```
 This will register the module with the same name into the container as a dependency for other beans.
 If the module's name contains hyphens or dots, it will be converted to a camelCase name:
 
 ```javascript
-   container.register_module('token-manager'); //this will register a bean named tokenManager to hold the module.
+   app.register_module('token-manager'); //this will register a bean named tokenManager to hold the module.
 ```
 
 Bean Notation
 -------------
 
-Alternatively you can use bean notation to register your beans. For that you should use the method <code>container.bean()</code> like the following:
+Alternatively, and preferably, you can use bean notation to register your beans. For that you should use the method <code>app.bean()</code> like the following:
 
 ```javascript
-var bean = {
+var beanDef = {
    name: 'myBean',
    dependencies: ['aDependency', 'otherDependency'],
-   scope: container.SINGLETON,
+   scope: app.SINGLETON,
    factory: function(a, b){
-      return "awesomeness using beans " + a + " and " + b;
+      return "my awesome beans using " + a + " and " + b;
    }
 }
+//This registers a bean named 'myBean', with two named dependencies ('aDependency' and 'otherDependency') and singleton scope
+app.bean(beanDef);
 ```
+
+If you pass a dependencies array to the definition, the names of the factory function arguments will be ignored, and the names in the array will be used, in the proper order.
+If you omit the dependencies array or pass app.RESOLVE, the names of the arguments of factory function will be used.
 
 This strict way to define a bean will accept an object with four fields:
 
@@ -99,13 +104,13 @@ Required. This will be the name to be saved in the registry.
 
 - dependencies
 
-Optional. An array containing the names of the dependencies to be passed to factory. If instead you pass the constant <code>container.RESOLVE</code>, the container will infer from the names of the factory arguments.<br>
-Default: <code>container.RESOLVE</code>
+Optional. An array containing the names of the dependencies to be passed to factory. If instead you pass the constant <code>app.RESOLVE</code>, the container will infer from the names of the factory arguments.<br>
+Default: <code>app.RESOLVE</code>
 
 - scope
 
-Optional. You can pass <code>container.SINGLETON</code> or <code>container.PROTOTYPE</code>, so that your bean will be placed correctly in the registry.<br>
-Default: <code>container.SINGLETON</code>
+Optional. You can pass <code>container.SINGLETON</code> or <code>app.PROTOTYPE</code>, so that your bean will be placed correctly in the registry.<br>
+Default: <code>app.SINGLETON</code>
 
 - factory
 
@@ -118,27 +123,32 @@ Since the beans are functions that return values, the dependencies are managed a
 ***require-bean*** will look in the named parameters for dependencies, so if you have a bean named _awesomebean_ and need it as a dependency, you could write this:
 
 ```javascript
-container.register('mybean', function(awesomebean){ /* cool stuff here */ })
+app.register('mybean', function(awesomebean){ /* cool stuff here */ })
 ```
 
 In order to do the correct wiring, the argument _name_ must match the bean name. If no bean with that name have been registered, an exception will be thrown.
 
 There is no restriction for the name of the beans you want to register, but they will be useless if you cannot define a function argument with the same name.
 
+If the bean was defined in Bean Notation, the dependencies will be resolved differently, by first looking at the dependencies array provided, and using the function arguments as a fallback.
+
 Bean Scope
 ----------
 
 When you register a bean, you can choose one of these methods:
 
-* container.register( bean_name, bean_function )
+* app.register( bean_name, bean_function )
 
 This method registers the bean as a singleton, meaning that every time you request it, the same instance will be returned to you
 
 Notice that the singletons' scope is the enclosing container. Different container instances will have different singleton instances.
 
-* container.register_proto( bean_name, bean_function )
+* app.register_proto( bean_name, bean_function )
 
 Registers the bean as a template for creating beans, meaning that each time you request it, a different instance will be returned
+
+
+In bean notation, you should pass a scope attribute with the value <code>app.PROTOTYPE</code> to use prototype scope. The default scope is <code>app.SINGLETON</code>.
 
 
 Circular Dependencies
@@ -154,10 +164,10 @@ Multiple Containers
 var requireBean = require('require-bean');
 
 /*Creates a container named 'myapp'*/
-var myappContainer = requireBean.container('myapp');
+var myApp = requireBean.container('myApp');
 
 /*Creates a container named 'otherapp'*/
-var otherAppContainer = requireBean.container('otherapp');
+var otherApp = requireBean.container('otherApp');
 ```
 
 requireBean.container() method is called to create containers. Beans that are registered in one container will NOT be available in the other container instances.
