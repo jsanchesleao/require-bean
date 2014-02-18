@@ -1,4 +1,4 @@
-var app = require('./.').container('app');
+var app = require('../').container('app');
 
 app.bean({
     name: 'Logger',
