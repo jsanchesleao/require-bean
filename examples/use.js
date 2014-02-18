@@ -15,6 +15,6 @@ app.bean({
     }
 });
 
-app.run('hello', function(hello){
+app.run(function(hello){
     hello();
 });
