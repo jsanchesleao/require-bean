@@ -43,6 +43,7 @@ app.register_proto('proto', proto);
 
 app.bean(formatBean);
 app.bean(asyncBean);
+app.bean('../examples/beanNotation');
 
 
 describe('The Container', function(){
@@ -54,6 +55,16 @@ describe('The Container', function(){
             }
             catch(err){
                 assert.equal(err.message, 'Error registering bean [$something]: Beans with names beginning with $ are reserved and cannot be created by clients');
+            }
+        });
+
+        it('cannot register a module with name beginning with a dot', function(){
+            try{
+                app.register_module('../examples/use');
+                assert.fail();
+            }
+            catch(err){
+                assert.equal(err.message, 'Error registering module [../examples/use]: Cannot register relative path modules');
             }
         });
 
@@ -81,6 +92,13 @@ describe('The Container', function(){
         it('returns a bean registered in bean notation', function(done){
             app.run('formatBean', function(formatBean){
                 assert.equal(formatBean.value, 'OTHERBEAN');
+                done();
+            });
+        });
+
+        it('returns a bean registered in string bean notation', function(done){
+            app.run('test', function(test){
+                assert.equal(test.value, 'test');
                 done();
             });
         });

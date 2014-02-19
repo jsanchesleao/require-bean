@@ -117,6 +117,9 @@ Default: <code>app.SINGLETON</code>
 Required. The function that will return your bean. It will take the dependencies as arguments, and they will be resolved based on the dependencies parameter defined earlier.
 
 
+The method <code>app.bean()</code> can accept a string instead of a bean definition, in this case, the container will use <code>require</code> on that string and then register the bean.<br>
+This string version of <code>app.bean()</code> is still experimental.
+
 Asynchronous Beans
 ------------------
 
