@@ -99,7 +99,7 @@ describe('The Container', function(){
                 });
             }
             catch(err){
-                assert.equal(err.message, 'Cannot wire bean [unresolved]. Unresolved dependency: [somebean]');
+                assert.equal(err.message, 'Error resolving [unresolved]: Cannot wire bean [unresolved]. Unresolved dependency: [somebean]');
             }
         });
 
