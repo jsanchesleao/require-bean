@@ -1,6 +1,6 @@
 {
   "name": "require-bean",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Minimal IoC container",
   "main": "./lib/main.js",
   "directories": {
