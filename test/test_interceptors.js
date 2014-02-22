@@ -61,7 +61,7 @@ describe('Chains', function(){
             }
         }));
 
-        chain.preparePhase(_bean, function(){
+        chain.preparePhase(_bean, function(){}, function(){
             done();
         })
 
@@ -89,7 +89,7 @@ describe('Chains', function(){
             }
         }));
 
-        chain.resolvePhase(_bean, function(){
+        chain.resolvePhase(_bean, function(){}, function(){
             done();
         })
 
@@ -117,9 +117,10 @@ describe('Chains', function(){
             }
         }));
 
-        chain.instantiationPhase(_bean, function(){
+        chain.instantiationPhase(_bean, function(){}, function(){
             done();
         })
 
     })
+
 });
