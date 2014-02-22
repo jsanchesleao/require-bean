@@ -13,4 +13,6 @@ app.bean(asyncBean);
 
 app.run(function(asynchronous){
     console.log( asynchronous.value );
-})
+}, function(err){
+    console.log(err);
+});
