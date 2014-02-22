@@ -1,4 +1,7 @@
 var app = require('../').container('app');
+var LoggerInterceptor = require('../lib/middle/LoggerInterceptor');
+
+app.interceptorChain.push( new LoggerInterceptor() );
 
 app.bean({
     name: 'Logger',
