@@ -111,14 +111,12 @@ describe('The Container', function(){
         });
 
         it('fails if required bean cannot be resolved', function(){
-            try{
-                var unresolved = app.run('unresolved', function(unresolved){
-                    assert.fail();
-                });
-            }
-            catch(err){
+            app.run('unresolved', function(unresolved){
+                assert.fail();
+            },
+            function(err){
                 assert.equal(err.message, 'Cannot wire bean [unresolved]. Unresolved dependency: [somebean]');
-            }
+            });
         });
 
         it('returns singleton instances of beans', function(done){

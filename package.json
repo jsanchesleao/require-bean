@@ -19,5 +19,8 @@
   "devDependencies": {
     "mocha": "~1.17.0"
   },
-  "repository": "https://github.com/jsanchesleao/require-bean.git"
+  "repository": "https://github.com/jsanchesleao/require-bean.git",
+  "dependencies": {
+    "async": "~0.2.10"
+  }
 }
