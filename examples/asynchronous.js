@@ -1,4 +1,8 @@
-var app = require('../').container('app');
+var requireBean = require('../');
+
+var app = requireBean.container('app');
+
+app.use( requireBean.debuggerInterceptor() );
 
 var asyncBean = {
     name: 'asynchronous',
