@@ -45,6 +45,8 @@
                 </li>
                 <li><a href="#multiple-containers">Multiple Containers</a>
                 </li>
+                <li><a href="#interceptors">Interceptors</a>
+                </li>
             </ul>
         </div>
 
@@ -179,10 +181,12 @@ app.bean(beanDef);</pre>
                                 </li>
                             </ul>
                             <p>
-                                The method <code>app.bean()</code> can accept a string instead of a bean definition, in this case,
-                                the container will use <code>require</code> on that string and then register the bean.<br>
-                                This string version of <code>app.bean()</code> is still experimental.
+                                If you write all beans in bean notation, there is a shortcut to register them all, so you can
+                                register all beans inside a directory at once:
                             </p>
+                            <pre class="prettyprint">var app = require('require-bean').container('myapp');
+
+app.bean({ dir: __dirname +'/lib'}); //registers all beans inside lib directory</pre>
                         </section>
 
                         <section id="asynchronous-beans">
@@ -269,6 +273,139 @@ var otherApp = requireBean.container('otherApp');</pre>
                                 Beans that are registered in one container will NOT be available in the other container instances.
                                 If your app starts other apps, you should consider create separated container instances for each app.
                             </p>
+                        </section>
+                        <section id="interceptors">
+                            <h1>Interceptors</h1>
+                            <p>
+                                In order to keep it's core minimal, <code>require-bean</code> implements a system of interceptors,
+                                allowing third party code to hook into the bean resolution mechanism.
+                            </p>
+                            <p>
+                                Features like <a href="#bean-notation">registering all beans of a directory</a> and the <a href="#asynchronous-beans">special dependency</a> <code>$return</code> are
+                                implemented internally using interceptors.
+                            </p>
+                            <p>
+                                An interceptor is easily created by extending a base <code>Interceptor</code> class, like the following:
+                            </p>
+                            <pre class="prettyprint">var requireBean = require('require-bean'),
+    Interceptor = requireBean.Interceptor;
+
+function MyCustomInterceptor(){
+}
+
+Interceptor(MyCustomInterceptor);
+
+Interceptor.prototype.bind = function(container){
+/* this code gets called right after you register the interceptor in a container; */
+}
+
+Interceptor.prototype.doRegisterPhase = function(beanDef){
+/*
+    Whenever a bean is registered into the container, it's definition object will be passed here.
+    beanDef usually will be an object with the bean notation format.
+    return true to indicate that other interceptors should run after yours. Return false to break the chain
+*/
+    return true;
+}
+
+Interceptor.prototype.doPreparePhase = function(bean, callback, next){
+/*
+    Whenever a bean enters Preparation Phase (see details below), this will be called.
+    You must call next passing three arguments: an error, the received bean and the received callback.
+    If an error argument is passed, the chain will end in your interceptor, otherwise it will continue
+    until it ends the Preparation Phase.
+*/
+    next(null, bean, callback);
+}
+
+Interceptor.prototype.doResolvePhase = function(bean, callback, next){
+/*
+    Whenever a bean enters Resolve Phase (see details below), this will be called.
+    You should call next like in doPreparePhase, to continue or break the chain.
+*/
+    next(null, bean, callback);
+}
+
+Interceptor.prototype.doInstantiationPhase = function(bean, callback, next){
+/*
+    Whenever a bean enters Instantiation Phase (see details below), this will be called.
+    You should call next like in doPreparePhase, to continue or break the chain.
+*/
+    next(null, bean, callback);
+}</pre>
+                            <h3>Bean Resolution Phases</h3>
+                            <p>
+                                Interceptors' processing will be easier to follow if we understand the phases of beans resolutions, which are:
+                            </p>
+                            <ul>
+                                <li>Prepare Phase
+                                    <p>
+                                        When the bean is selected to be resolved, it begins by calling it's Prepare Phase.
+                                        This is the first step, and at this time, the interceptor's <code>doPreparePhase</code> method
+                                        will be called, to give them a chance of doing some startup logic.
+
+                                        If the Prepare Phase finishes successfully, the bean will move to Resolve Phase.
+                                    </p>
+                                </li>
+                                <li>Resolve Phase
+                                    <p>
+                                        This is the time when the bean checks its dependencies.
+                                        Right now, all the interceptors will have a chance of running their <code>doResolvePhase</code> method.
+                                        If no interceptor breaks the chain, the bean finally resolve its dependencies.
+                                        For each unresolved dependency it begins the resolution process to resolve them all.
+                                        When all dependencies are resolved, the bean moves to the Instantiation Phase.
+                                    </p>
+                                </li>
+                                <li>Instantiation Phase
+                                    <p>
+                                        Now the bean is ready to be instantiated, but once again, interceptors can hook it's behaviour.
+                                        At this time, the interceptors will have a chance of running their <code>doInstantiationPhase</code> method.
+                                        It is important that if any interceptor does the instantiation process by itself,
+                                        that it sets the flag <code>bean.instantiated</code> to true, so it will know that it was instantiated
+                                        during intercept hooks, thus not trying to create the bean object twice.
+                                    </p>
+                                </li>
+                            </ul>
+                            <p>Finally, to hook up the interceptor into our container, we use the <code>use</code> method, like that: </p>
+                            <pre class="prettyprint">var app = require('require-bean').container('myapp');
+app.use( new MyCustomInterceptor() );</pre>
+                            <p>Out of the box, we provide a testing interceptor, that logs whenever a bean enters a resolution phase:</p>
+                            <pre class="prettyprint">var middleware = require('require-bean').middleware;
+app.use( middleware.debuggerInterceptor() );</pre>
+                            <p>Also, it's important to say that you should call <code>use</code> before registering any beans into the container.</p>
+                            <h3>Bean Object</h3>
+                            <p>
+                                The <code>bean</code> parameter that is passed to <code>doRegisterPhase</code>, <code>doResolvePhase</code> and
+                                <code>doInstantiationPhase</code>, looks supports the following operations:
+                            </p>
+                            <pre class="prettyprint">/**********************************************************************
+    Properties that should NOT be altered without a REALLY good reason
+**********************************************************************/
+
+bean.name;           // returns the name of the bean.
+bean.dependencyList; // returns an object containing the dependencies.
+bean.factory;        // returns the factory function to create the bean;
+
+
+/**********************************************************************
+    Method calls
+**********************************************************************/
+var dependencyList = bean.dependencyList;
+
+// returns an object representing the next unresoved dependency of the bean.
+var nextUnresolved = dependencyList.nextUnresolved();
+
+// resolves the next unresolved dependency, by setting it to obj.
+nextUnresolved.resolve( obj );
+
+// applies a function passing the resolved dependencies as arguments. Returns what func returns.
+dependencyList.apply( func );
+
+
+/**********************************************************************
+    Properties that can be altered
+**********************************************************************/
+bean.instantiated;   // If you instantiate the bean manually, this should be set to true.</pre>
                         </section>
                     </div>
                 </div>
