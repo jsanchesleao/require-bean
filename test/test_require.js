@@ -43,7 +43,6 @@ app.register_proto('proto', proto);
 
 app.bean(formatBean);
 app.bean(asyncBean);
-app.bean('../examples/beanNotation');
 
 
 describe('The Container', function(){
@@ -92,13 +91,6 @@ describe('The Container', function(){
         it('returns a bean registered in bean notation', function(done){
             app.run('formatBean', function(formatBean){
                 assert.equal(formatBean.value, 'OTHERBEAN');
-                done();
-            });
-        });
-
-        it('returns a bean registered in string bean notation', function(done){
-            app.run('test', function(test){
-                assert.equal(test.value, 'test');
                 done();
             });
         });
