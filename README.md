@@ -4,6 +4,8 @@ Require Bean
 This is a minimal IoC container, designed for simplicity. It's main concept is the container, in which the beans are registered.
 A bean is just a function that returns a value, like the following:
 
+Soon will be using travis.
+
 ```javascript
 var mybean = function(){
     return {
